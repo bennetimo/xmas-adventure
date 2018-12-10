@@ -1,12 +1,14 @@
 # IDE files #
 ######################
 .idea
+node_modules/
 
 # Scala files #
 ######################
 **/target/*
 *.class
 *.log
+package-lock.json
 
 # OS generated files #
 ######################

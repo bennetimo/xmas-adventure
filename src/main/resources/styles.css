@@ -1,0 +1,24 @@
+#console {
+    width: 100%
+}
+
+#console {
+  background-color: black;
+  background-image: radial-gradient(
+    rgba(0, 150, 0, 0.75), black 120%
+  );
+  height: 100vh;
+  color: white;
+  font: 1.3rem Inconsolata, monospace;
+  text-shadow: 0 0 5px #C8C8C8;
+}
+
+#userInput {
+  outline: none;
+  background-color: transparent;
+  margin: 0;
+  width: 100%;
+  font: inherit;
+  border: none;
+  color: inherit;
+}
