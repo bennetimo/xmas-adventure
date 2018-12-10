@@ -1,16 +1,41 @@
-#console {
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+}
+
+#wrapper {
+    position: absolute;
+    background-color: black;
+    background-image: url(pc.png);
+    background-size: 1024px;
+    background-position: top center;
+    background-repeat: no-repeat;
     width: 100%
 }
 
 #console {
-  background-color: black;
+  /*background-color: black;
   background-image: radial-gradient(
     rgba(0, 150, 0, 0.75), black 120%
-  );
+  );*/
   height: 100vh;
-  color: white;
-  font: 1.3rem Inconsolata, monospace;
+  color: lightgreen;
+  font: 0.8rem Inconsolata, monospace;
   text-shadow: 0 0 5px #C8C8C8;
+  padding: 30px;
+  width: 500px;
+  margin-left: 550px;
+  margin-top: 150px;
+}
+
+#output {
+    height: 270px;
+    overflow: scroll;
 }
 
 #userInput {
