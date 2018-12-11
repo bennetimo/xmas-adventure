@@ -37,7 +37,7 @@ object Game {
 
   def putLine(s: String, tagType: String = "p"): IO[Unit] = IO($("#output").append(s"<$tagType>$s</$tagType>"))
   def prompt(s: String): IO[Unit] = IO($("#prompt").text(s"$s"))
-  def putLineSlowly(s: String, cssClass: String, tagType: String = "p"): IO[Boolean] = {
+  def putLineSlowly(s: String, cssClass: String, tagType: String = "p", newLine: Boolean = false): IO[Boolean] = {
     val words = s.split(" ").zipWithIndex
 
     def slowly(f: Boolean => Unit): Unit = {
@@ -46,7 +46,11 @@ object Game {
       words.foreach { case (s, i) =>
         js.timers.setTimeout(80 * i) {
           $(s"#output p.$cssClass:last").append(s"$s ")
-          f(i >= words.length - 1)
+          if(i >= words.length - 1){
+            if(newLine)
+              $("#output").append(s"""<br />""")
+            f(true)
+          }
         }
       }
     }
@@ -68,7 +72,7 @@ object Game {
   def gameLoop(): IO[Unit] = {
     (for {
       _ <- scroll
-      _ <- putLineSlowly("What do you want to do?", "prompt")
+      _ <- putLineSlowly("What do you want to do now?", "prompt")
       _ <- prompt(">>  ")
       input <- getLine
       _ <- clearInput
@@ -77,7 +81,7 @@ object Game {
         case "xmas" => playSound("MerryXmas.mp3")
         case "success" => playSound("success.wav")
         case "stop" => stopSound
-        case x => putLineSlowly(s"OK, let's $x!", "response")
+        case x => putLineSlowly(s"OK, let's $x!", "response", "p", newLine = true)
       }
     } yield ()).flatMap(_ => gameLoop)
   }
@@ -86,6 +90,7 @@ object Game {
   def main(args: Array[String]): Unit = {
     (for {
       _ <- putLine(Ascii.logo, "pre")
+      _ <- putLineSlowly(Messages.intro, "response", "p", newLine = true)
       _ <- gameLoop()
     }yield ()).unsafeRunAsyncAndForget()
   }
