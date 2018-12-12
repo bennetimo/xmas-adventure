@@ -1,78 +1,21 @@
 package io.coderunner.adventure
 
+import cats.data.StateT
 import cats.effect.IO
-import org.querki.jquery._
-import org.scalajs.dom.ext.KeyCode
-
-import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExport
+import Console._
+import Music._
+import World._
 
 object Game {
 
-  val input = $("#userInput")
-  val audio = $("#audio")
+  type Game[A] = StateT[IO, GameState, A]
 
-  // This has the effect of having the 'update' function of the Channel passed as the event handler, so we can
-  // intercept the key press values being passed back. Each time we press a key, the handler will be called, which
-  // checks the condition to see whether it was an Enter key. If so, the future is completed. This is used to
-  // effectively allow us to simulate a blocking readLine input in the browser, reading from the text input. Only
-  // when the player has fully entered a line does the game loop continue
-  val enterPressed = new Channel[JQueryEventObject](input.keyup(_), e => e.which == KeyCode.Enter)
-
-  def getLine: IO[String] = IO.fromFuture(IO(enterPressed())).flatMap(_ => readInput)
-
-  val clearInput: IO[Unit] = IO(input.value(""))
-
-  def playSound(file: String): IO[Unit] = IO{
-    lazy val document = js.Dynamic.global.document
-    lazy val audioDom = document.getElementById("audio")
-
-    audio.attr("src", file)
-    audioDom.play()
-  }
-
-  val stopSound: IO[Unit] = IO(audio.attr("src", ""))
-
-  val readInput: IO[String] = IO(input.valueString)
-
-  def putLine(s: String, tagType: String = "p"): IO[Unit] = IO($("#output").append(s"<$tagType>$s</$tagType>"))
-  def prompt(s: String): IO[Unit] = IO($("#prompt").text(s"$s"))
-  def putLineSlowly(s: String, cssClass: String, tagType: String = "p", newLine: Boolean = false): IO[Boolean] = {
-    val words = s.split(" ").zipWithIndex
-
-    def slowly(f: Boolean => Unit): Unit = {
-      $("#output").append(s"""<$tagType class="$cssClass"></$tagType>""")
-
-      words.foreach { case (s, i) =>
-        js.timers.setTimeout(80 * i) {
-          $(s"#output p.$cssClass:last").append(s"$s ")
-          if(i >= words.length - 1){
-            if(newLine)
-              $("#output").append(s"""<br />""")
-            f(true)
-          }
-        }
-      }
-    }
-
-    val textFinished = new Channel[Boolean](slowly, _ == true)
-
-    IO.fromFuture(IO(textFinished()))
-  }
-
-  def slowWords(s: String, finishedCallback: Boolean => Unit): Unit = {
-    val words = s.split(" ").zipWithIndex
-  }
-
-  def scroll: IO[Unit] = IO {
-    val screen = org.scalajs.dom.document.getElementById("output")
-    screen.scrollTop = screen.scrollHeight.toDouble
-  }
-
-  def gameLoop(): IO[Unit] = {
+  def gameLoop: Game[Unit] = {
     (for {
+      gs <- StateT.get[IO, GameState]
       _ <- scroll
-      _ <- putLineSlowly("What do you want to do now?", "prompt")
+      _ <- putLineSlowly(s"What do you want to do now ${gs.player.name}?", "prompt")
       _ <- prompt(">>  ")
       input <- getLine
       _ <- clearInput
@@ -86,12 +29,28 @@ object Game {
     } yield ()).flatMap(_ => gameLoop)
   }
 
+  def preLoop: Game[Unit] = for {
+    _ <- putLine(Ascii.logo, "pre")
+    _ <- putLineSlowly(Messages.intro, "response", "p", newLine = true)
+    _ <- getName
+    _ <- gameLoop
+  } yield ()
+
+  def updateName(name: String): Game[Unit] = state[Unit] { s: GameState => (playerNameL.modify(_ => name)(s), ()) }
+
+  def state[A](f: GameState => (GameState, A)): Game[A] = StateT[IO, GameState, A](s => IO(f(s)))
+
+  def getName: Game[Unit] = {
+    for {
+    _  <- putLineSlowly("What is your name?", "prompt", "p", newLine = false)
+    name <- getLine
+    _ <- updateName(name)
+    _ <- putLineSlowly(s"Nice to meet you, $name", "response", "p", newLine = false)
+    } yield ()
+  }
+
   @JSExport
   def main(args: Array[String]): Unit = {
-    (for {
-      _ <- putLine(Ascii.logo, "pre")
-      _ <- putLineSlowly(Messages.intro, "response", "p", newLine = true)
-      _ <- gameLoop()
-    }yield ()).unsafeRunAsyncAndForget()
+    preLoop.run(GameState(PlayerState("", 100))).unsafeRunAsyncAndForget()
   }
 }

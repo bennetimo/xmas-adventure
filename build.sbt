@@ -3,6 +3,8 @@ enablePlugins(ScalaJSPlugin)
 
 enablePlugins(WorkbenchPlugin)
 
+val monocleVersion = "1.5.0"
+
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
@@ -16,6 +18,9 @@ lazy val root = (project in file(".")).
     libraryDependencies += "org.querki" %%% "jquery-facade" % "1.2",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2",
     libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.7",
+    libraryDependencies += "com.github.julien-truffaut" %%%  "monocle-core"  % monocleVersion,
+    libraryDependencies += "com.github.julien-truffaut" %%%  "monocle-macro" % monocleVersion,
+    libraryDependencies += "com.github.julien-truffaut" %%%  "monocle-law"   % monocleVersion % Test,
     libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test,
     libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.14.0" % Test,
     scalacOptions += "-Ypartial-unification",
