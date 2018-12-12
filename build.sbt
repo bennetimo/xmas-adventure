@@ -3,6 +3,8 @@ enablePlugins(ScalaJSPlugin)
 
 enablePlugins(WorkbenchPlugin)
 
+enablePlugins(DockerPlugin)
+
 val monocleVersion = "1.5.0"
 
 lazy val root = (project in file(".")).
@@ -28,5 +30,33 @@ lazy val root = (project in file(".")).
     scalaJSUseMainModuleInitializer := true,
     skip in packageJSDependencies := false,
     jsDependencies += "org.webjars" % "jquery" % "3.2.1" / "jquery.js" minified "jquery.min.js",
-    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv() //Allow working with the DOM in Node.js
+    jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(), //Allow working with the DOM in Node.js
+    dockerfile in docker := {
+      val jsDir  = target.value / "scala-2.12"
+      val resDir  = target.value / "scala-2.12" / "classes"
+      val projectDir = project.base.getAbsolutePath
+    
+      val dockerFile = new Dockerfile {
+          from("nginx:alpine")
+            .maintainer("Tim Bennett")
+            .copy(jsDir / "xmas-adventure-opt.js", "/usr/share/nginx/html")
+            .copy(jsDir / "xmas-adventure-jsdeps.min.js", "/usr/share/nginx/html")
+            .copy(resDir / "index.html", "/usr/share/nginx/html")
+            .copy(resDir / "computer-hum.wav", "/usr/share/nginx/html")
+            .copy(resDir / "MerryXmas.mp3", "/usr/share/nginx/html")
+            .copy(resDir / "pc.png", "/usr/share/nginx/html")
+            .copy(resDir / "styles.css", "/usr/share/nginx/html")
+            .copy(resDir / "success.wav", "/usr/share/nginx/html")
+      }
+    
+      dockerFile
+    },
+    imageNames in docker := Seq(
+      // Sets the latest tag
+      ImageName(
+          namespace = Some("bennetimo"),
+          repository = name.value,
+          tag = Some("latest")
+      )
+    )
   )

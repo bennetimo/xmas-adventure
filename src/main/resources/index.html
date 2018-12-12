@@ -18,23 +18,23 @@
     <audio id="audio" src=""></audio>
 </div>
 <!-- Include JavaScript dependencies -->
-<script type="text/javascript" src="../xmas-adventure-jsdeps.js"></script>
+<script type="text/javascript" src="../xmas-adventure-jsdeps.min.js"></script>
 <!-- Include Scala.js compiled code -->
-<script type="text/javascript" src="../xmas-adventure-fastopt.js"></script>
-
-<script type="text/javascript" src="/workbench.js"></script>
+<script type="text/javascript" src="../xmas-adventure-opt.js"></script>
 
 <script>
-    var audio_file = new Audio('computer-hum.wav')
-    audio_file.addEventListener('timeupdate', function(){
-        var buffer = .44
-        if(this.currentTime > this.duration - buffer){
-            this.currentTime = 0
-            this.play()
-        }}, false);
-    audio_file.volume = 0.5;
-    audio_file.play()
-
+    // Chrome doesn't allow autoplay anymore until the user has interacted with the page!
+    $(document).click(function() {
+        var audio_file = new Audio('computer-hum.wav')
+        audio_file.addEventListener('timeupdate', function(){
+            var buffer = .44
+            if(this.currentTime > this.duration - buffer){
+                this.currentTime = 0
+                this.play()
+            }}, false);
+        audio_file.volume = 0.5;
+        audio_file.play()
+    });
 </script>
 </body>
 </html>
