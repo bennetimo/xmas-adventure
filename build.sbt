@@ -18,6 +18,7 @@ lazy val root = (project in file(".")).
     libraryDependencies += "org.querki" %%% "jquery-facade" % "1.2",
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "0.9.2",
     libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "0.9.7",
+    libraryDependencies += "org.scala-lang.modules" %%% "scala-parser-combinators" % "1.1.1",
     libraryDependencies += "com.github.julien-truffaut" %%%  "monocle-core"  % monocleVersion,
     libraryDependencies += "com.github.julien-truffaut" %%%  "monocle-macro" % monocleVersion,
     libraryDependencies += "com.github.julien-truffaut" %%%  "monocle-law"   % monocleVersion % Test,
