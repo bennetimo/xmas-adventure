@@ -30,21 +30,25 @@ object Console {
 
   val clearInput: Game[Unit] = StateT.liftF(IO(input.value("")))
 
+  val clearOutput: Game[Unit] = StateT.liftF(IO(output.text("")))
+
   val readInput: IO[String] = IO(input.valueString)
 
   def prompt(s: String): Game[Unit] = StateT.liftF(IO(prompt.text(s"$s")))
 
-  def putLine(s: String, tagType: String = "p"): Game[Unit] = StateT.liftF(IO(output.append(s"<$tagType>$s</$tagType>")))
+  def putLine(s: String, cssClass: String, tagType: String = "p"): Game[Unit] = StateT.liftF(IO(output.append(s"""<$tagType class="$cssClass">$s</$tagType>""")))
 
-  def putLineSlowly(s: String, cssClass: String, tagType: String = "p", newLine: Boolean = false): Game[Boolean] = {
+  def putLineSlowly(s: String, cssClass: String, tagType: String = "p", newLine: Boolean = false, delay: Int = 80): Game[Unit] = {
     val words = s.split(" ").zipWithIndex
 
     def slowly(f: Boolean => Unit): Unit = {
       output.append(s"""<$tagType class="$cssClass"></$tagType>""")
 
       words.foreach { case (s, i) =>
-        js.timers.setTimeout(80 * i) {
+        js.timers.setTimeout(delay * i) {
           $(s"${Output.id} p.$cssClass:last").append(s"$s ")
+          val screen = org.scalajs.dom.document.getElementById(Output.id.tail)
+          screen.scrollTop = screen.scrollHeight.toDouble - 100
           if(i >= words.length - 1){
             if(newLine)
               output.append(s"""<br />""")
@@ -54,14 +58,17 @@ object Console {
       }
     }
 
-    val textFinished = new Channel[Boolean](slowly, _ == true)
-
-    StateT.liftF(IO.fromFuture(IO(textFinished())))
+    for {
+      _ <- putLine("", cssClass, tagType)
+      _ <- scroll
+      textFinished = new Channel[Boolean](slowly, _ == true)
+      _ <- StateT.liftF(IO.fromFuture(IO(textFinished())))
+    } yield ()
   }
 
   def scroll: Game[Unit] = StateT.liftF(IO {
     val screen = org.scalajs.dom.document.getElementById(Output.id.tail)
-    screen.scrollTop = screen.scrollHeight.toDouble
+    screen.scrollTop = screen.scrollHeight.toDouble - 100
   })
 
 }

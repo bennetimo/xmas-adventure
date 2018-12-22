@@ -7,6 +7,7 @@ import scala.scalajs.js.annotation.JSExport
 import Console._
 import Music._
 import World._
+import io.coderunner.adventure.Action.Goto
 import monocle.PLens
 
 object Game {
@@ -14,18 +15,42 @@ object Game {
   type Game[A] = StateT[IO, GameState, A]
 
   def validMove(currentRoom: Room, targetRoom: Room, connections: Map[Room, List[Room]]): Boolean = {
-    connections.get(currentRoom).exists(_.contains(targetRoom))
+    connections.get(currentRoom).exists(a => a.map(_.name.toLowerCase()).contains(targetRoom.name.toLowerCase))
+  }
+
+  def findTargetRoom(gameMap: GameMap, targetRoom: String): Option[Room] = {
+    gameMap.connections.keys.find(_.name.toLowerCase.trim == targetRoom.toLowerCase.trim)
+  }
+
+  def findTargetItem(room: Room, targetItem: String): Option[Item] = {
+    room.items.find(_.name.toLowerCase.trim == targetItem.toLowerCase.trim)
   }
 
   import Action._
   val performAction: Action => Game[_] = {
 
-    def tryMove(targetRoom: Room): Game[Unit] = for {
+    def tryMove(targetRoom: String): Game[Unit] = for {
       map <- get(mapL)
       currentRoom <- get(playerRoomL)
-      _ <- if(validMove(currentRoom, targetRoom, map.connections)) {
-        update(playerRoomL)(_ => targetRoom)
-      } else putLineSlowly(s"You can't go to the ${targetRoom.name} from here", "response")
+      target = findTargetRoom(map, targetRoom)
+
+      _ <- target.map( room => {
+        if(validMove(currentRoom, room, map.connections))
+                  update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => putLine(room.ascii, "", "pre"))
+                else putLineSlowly(s"You can't get to $targetRoom from here", "response")
+      }).getOrElse(putLineSlowly("That place does not exist!", "response"))
+    } yield ()
+
+    def tryPickUp(targetItem: String): Game[Unit] = for {
+      map <- get(mapL)
+      currentRoom <- get(playerRoomL)
+      target = findTargetItem(currentRoom, targetItem)
+
+      _ <- target.map( item => {
+        if(item.pickable)
+          playSound("success.wav")
+        else putLineSlowly(s"You can't pick up the ${item.name}", "response")
+      }).getOrElse(putLineSlowly("Can't see that around here...", "response"))
     } yield ()
 
     {
@@ -33,6 +58,7 @@ object Game {
       case Xmas => playSound("MerryXmas.mp3")
       case Twinkle => playSound("success.wav")
       case Goto(room) => tryMove(room)
+      case PickUp(item) => tryPickUp(item)
       case Stop => stopSound
       case _ => putLineSlowly("I'm sorry, I don't understand that right now", "response")
     }
@@ -43,8 +69,6 @@ object Game {
       gs <- StateT.get[IO, GameState]
       _ <- displayRoomInfo
       _ <- scroll
-      _ <- putLineSlowly(s"What do you want to do now ${gs.player.name}?", "prompt")
-      _ <- scroll
       _ <- prompt(">>  ")
       action <- getLine.map(Action.parse)
       _ <- clearInput
@@ -53,17 +77,29 @@ object Game {
   }
 
   def preLoop: Game[Unit] = for {
-    _ <- putLine(Ascii.logo, "pre")
-    _ <- putLineSlowly(Messages.intro, "response", "p", newLine = true)
+    _ <- putLine(Ascii.logo, "", "pre")
+    _ <- putLineSlowly(Messages.introOne, "response", "p", newLine = true)
     _ <- getName
+    _ <- putLineSlowly("Checking your name against the naughty list...", "response", "p", newLine = true)
+    _ <- putLineSlowly(". . . . . . . . . . . . . . ", "response", "p", newLine = true, delay = 400)
+    _ <- putLineSlowly(Messages.introTwo, "response", "p", newLine = true)
+    _ <- putLineSlowly(Messages.introThree, "response", "p", newLine = true)
+    _ <- putLineSlowly("Did you get that? Press a key if so", "response", "p", newLine = true)
+    _ <- getLine
+    _ <- clearOutput
+    _ <- putLineSlowly(Messages.introFour, "response", "p", newLine = true)
     _ <- gameLoop
   } yield ()
 
   def updateName(name: String): Game[Unit] = state[Unit] { s: GameState => (playerNameL.modify(_ => name)(s), ()) }
 
   def displayRoomInfo: Game[Unit] = for {
+    map <- get(mapL)
     room <- get(playerRoomL)
     _ <- putLineSlowly(s"You are in the ${room.name}", "response", "p", false)
+    _ <- putLineSlowly(room.describeItems, "response", "p", false)
+    connected = map.connections.get(room).getOrElse(Nil)
+    _ <- putLineSlowly(s"You can goto ${connected.map(_.name).mkString(", ")} from here", "response", "p", false)
   } yield Unit
 
   def state[A](f: GameState => (GameState, A)): Game[A] = StateT[IO, GameState, A](s => IO(f(s)))
@@ -90,6 +126,6 @@ object Game {
 
   @JSExport
   def main(args: Array[String]): Unit = {
-    preLoop.run(GameState(DevonWorld.gameMap, PlayerState("", DevonWorld.diningRoom))).unsafeRunAsyncAndForget()
+    preLoop.run(GameState(DevonWorld.gameMap, PlayerState("", DevonWorld.diningRoom, Nil))).unsafeRunAsyncAndForget()
   }
 }
