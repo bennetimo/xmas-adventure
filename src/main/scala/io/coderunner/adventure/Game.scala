@@ -7,7 +7,7 @@ import scala.scalajs.js.annotation.JSExport
 import Console._
 import Music._
 import World._
-import io.coderunner.adventure.Action.Goto
+import Util._
 import monocle.PLens
 
 object Game {
@@ -36,7 +36,7 @@ object Game {
 
       _ <- target.map( room => {
         if(validMove(currentRoom, room, map.connections))
-                  update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => putLine(room.ascii, "", "pre"))
+                  update(playerRoomL)(_ => room).flatMap(_ => clearOutput)
                 else putLineSlowly(s"You can't get to $targetRoom from here", "response")
       }).getOrElse(putLineSlowly("That place does not exist!", "response"))
     } yield ()
@@ -76,18 +76,33 @@ object Game {
     } yield ()).flatMap(_ => gameLoop)
   }
 
+  def handleInputResponse(input: String): Game[Unit] = if(input.startsWith("n")) putLineSlowly("Well it is the only option, sorry!") else nothing
+
   def preLoop: Game[Unit] = for {
-    _ <- putLine(Ascii.logo, "", "pre")
-    _ <- putLineSlowly(Messages.introOne, "response", "p", newLine = true)
-    _ <- getName
-    _ <- putLineSlowly("Checking your name against the naughty list...", "response", "p", newLine = true)
-    _ <- putLineSlowly(". . . . . . . . . . . . . . ", "response", "p", newLine = true, delay = 400)
-    _ <- putLineSlowly(Messages.introTwo, "response", "p", newLine = true)
-    _ <- putLineSlowly(Messages.introThree, "response", "p", newLine = true)
-    _ <- putLineSlowly("Did you get that? Press a key if so", "response", "p", newLine = true)
-    _ <- getLine
+    _ <- putLine(Ascii.logo, "pre")
+    _ <- putLineSlowly(Messages.introOne)
+    name <- getName
+    _ <- putLineSlowly("Finding an elf...")
+    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introTwo, newLine = false)
+    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introThree)
+    _ <- putLineSlowly("Did you get that?")
+    input <- getLine
+    _ <- handleInputResponse(input)
+    _ <- clearInput
+    _ <- putLineSlowly(Messages.introFour)
+    input <- getLine
+    _ <- handleInputResponse(input)
+    _ <- clearInput
+    _ <- putLineSlowly("Initialising magic world...")
+    _ <- loadingBar
+    _ <- putLineSlowly("Bridging physical world...")
+    _ <- loadingBar
+    _ <- putLineSlowly("Good luck! We hope that you have been nice :)")
+    _ <- pause()
+    _ <- clearInput
     _ <- clearOutput
-    _ <- putLineSlowly(Messages.introFour, "response", "p", newLine = true)
     _ <- gameLoop
   } yield ()
 
@@ -96,10 +111,11 @@ object Game {
   def displayRoomInfo: Game[Unit] = for {
     map <- get(mapL)
     room <- get(playerRoomL)
-    _ <- putLineSlowly(s"You are in the ${room.name}", "response", "p", false)
-    _ <- putLineSlowly(room.describeItems, "response", "p", false)
+    _ <- putLine(room.ascii, "pre")
+    _ <- putLineSlowly(s"You are ${room.inString}")
+    _ <- putLineSlowly(room.describeItems)
     connected = map.connections.get(room).getOrElse(Nil)
-    _ <- putLineSlowly(s"You can goto ${connected.map(_.name).mkString(", ")} from here", "response", "p", false)
+    _ <- putLineSlowly(s"You can goto ${combinedString(connected)} from here")
   } yield Unit
 
   def state[A](f: GameState => (GameState, A)): Game[A] = StateT[IO, GameState, A](s => IO(f(s)))
@@ -114,14 +130,14 @@ object Game {
 
   def nothing: Game[Unit] = state[Unit](s => (s, Unit))
 
-  def getName: Game[Unit] = {
+  def getName: Game[String] = {
     for {
-    _  <- putLineSlowly("What is your name?", "prompt", "p", newLine = false)
+    _  <- putLineSlowly("What is your name?", newLine = false)
     name <- getLine
     _ <- updateName(name)
-    _ <- putLineSlowly(s"Nice to meet you, $name", "response", "p", newLine = false)
+    _ <- putLineSlowly(s"Nice to meet you, $name")
     _ <- clearInput
-    } yield ()
+    } yield name
   }
 
   @JSExport

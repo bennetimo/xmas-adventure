@@ -35,23 +35,27 @@ object Console {
   val readInput: IO[String] = IO(input.valueString)
 
   def prompt(s: String): Game[Unit] = StateT.liftF(IO(prompt.text(s"$s")))
+  def nothing(s: String): Game[Unit] = StateT.liftF(IO(Unit))
 
-  def putLine(s: String, cssClass: String, tagType: String = "p"): Game[Unit] = StateT.liftF(IO(output.append(s"""<$tagType class="$cssClass">$s</$tagType>""")))
+  def putLine(s: String, tagType: String = "p"): Game[Unit] = StateT.liftF(IO(output.append(s"""<$tagType class="response">$s</$tagType>""")))
 
-  def putLineSlowly(s: String, cssClass: String, tagType: String = "p", newLine: Boolean = false, delay: Int = 80): Game[Unit] = {
-    val words = s.split(" ").zipWithIndex
+  val loadingBar: Game[Unit] = putLineSlowly(". . . . . . . . . . . . . . . . . .", delay = 350)
+  def blankLine: Game[Unit] = putLine("")
+
+  def putLineSlowly(message: String, tagType: String = "p", newLine: Boolean = true, delay: Int = 80): Game[Unit] = {
+    val words = message.split(" ").zipWithIndex
 
     def slowly(f: Boolean => Unit): Unit = {
-      output.append(s"""<$tagType class="$cssClass"></$tagType>""")
+      output.append(s"""<$tagType class="response"></$tagType>""")
 
       words.foreach { case (s, i) =>
         js.timers.setTimeout(delay * i) {
-          $(s"${Output.id} p.$cssClass:last").append(s"$s ")
+          $(s"${Output.id} p.response:last").append(s"$s ")
           val screen = org.scalajs.dom.document.getElementById(Output.id.tail)
           screen.scrollTop = screen.scrollHeight.toDouble - 100
           if(i >= words.length - 1){
             if(newLine)
-              output.append(s"""<br />""")
+              output.append(s"""<br/>""")
             f(true)
           }
         }
@@ -59,11 +63,21 @@ object Console {
     }
 
     for {
-      _ <- putLine("", cssClass, tagType)
+      _ <- putLine("", tagType)
       _ <- scroll
       textFinished = new Channel[Boolean](slowly, _ == true)
       _ <- StateT.liftF(IO.fromFuture(IO(textFinished())))
     } yield ()
+  }
+
+  def pause(delay: Int = 2000): Game[Boolean] = {
+
+    def slowly(f: Boolean => Unit): Unit = {
+      js.timers.setTimeout(delay) { f(true) }
+    }
+
+    val finished = new Channel[Boolean](slowly, _ == true)
+    StateT.liftF(IO.fromFuture(IO(finished())))
   }
 
   def scroll: Game[Unit] = StateT.liftF(IO {
