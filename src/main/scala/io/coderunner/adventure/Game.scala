@@ -59,6 +59,7 @@ object Game {
           for {
             _ <- playSound("success.wav")
             _ <- putLineSlowly(s"You have picked up $item")
+            _ <- update(playerInventoryL)(i => item :: i)
 //            _ <- update(playerRoomL)(_ => room)
           } yield ()
         else putLineSlowly(s"You can't pick up the ${item.name}")
@@ -87,6 +88,7 @@ object Game {
       case Goto(room) => tryMove(room)
       case PickUp(item) => tryPickUp(item)
       case Inspect(item) => tryInspect(item)
+      case Inventory => displayInventory
       case Stop => stopSound
       case _ => putLineSlowly("I'm sorry, I don't understand that right now")
     }
@@ -135,6 +137,12 @@ object Game {
   } yield ()
 
   def updateName(name: String): Game[Unit] = state[Unit] { s: GameState => (playerNameL.modify(_ => name)(s), ()) }
+
+  def displayInventory: Game[Unit] = for {
+    map <- get(mapL)
+    inventory <- get(playerInventoryL)
+    _ <- if(inventory.isEmpty) putLineSlowly("You don't have anything") else putLineSlowly(s"You have ${combinedString(inventory)}")
+  } yield Unit
 
   def displayRoomInfo: Game[Unit] = for {
     map <- get(mapL)

@@ -7,7 +7,7 @@ import monocle.macros.GenLens
 object World {
 
   case class GameState(gameMap: GameMap, player: PlayerState)
-  case class PlayerState(name: String, currentRoom: Room, items: List[Item], atItem: Option[Item])
+  case class PlayerState(name: String, currentRoom: Room, inventory: List[Item], atItem: Option[Item])
 
   case class GameMap(connections: Map[Room, List[Room]])
   case class Room(name: String, items: List[Item], preposition: String = "the ", ascii: String = "") {
@@ -26,8 +26,10 @@ object World {
   val nameL = GenLens[PlayerState](_.name)
   val roomL = GenLens[PlayerState](_.currentRoom)
   val atItemL = GenLens[PlayerState](_.atItem)
+  val inventoryL = GenLens[PlayerState](_.inventory)
   val playerNameL = playerL composeLens nameL
   val playerRoomL = playerL composeLens roomL
   val playerAtItemL = playerL composeLens atItemL
+  val playerInventoryL = playerL composeLens inventoryL
 
 }
