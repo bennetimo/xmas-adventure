@@ -24,10 +24,12 @@ object Game {
 
   def lookupItem(items: List[Item], targetItem: String): Option[Item] = items.find(_.name.toLowerCase.trim == targetItem.toLowerCase.trim)
 
-  def findTargetItem(room: Room, atItem: Option[Item], targetItem: String): Option[Item] = {
+  def findTargetItem(room: Room, atItem: Option[Item], targetItem: String, secretItems: Map[Item, List[Item]]): Option[Item] = {
     lazy val visibleItem = lookupItem(room.items, targetItem)
     lazy val hiddenItem = atItem.map(_.hiddenItems).flatMap(items => lookupItem(items, targetItem))
-    visibleItem orElse hiddenItem
+    lazy val secretItem = lookupItem(atItem.flatMap(item => secretItems.get(item)).getOrElse(Nil), targetItem)
+
+    visibleItem orElse hiddenItem orElse secretItem
   }
 
   import Action._
@@ -52,7 +54,8 @@ object Game {
       map <- get(mapL)
       currentRoom <- get(playerRoomL)
       atItem <- get(playerAtItemL)
-      target = findTargetItem(currentRoom, atItem, targetItem)
+      secretItems <- get(secretItemsL)
+      target = findTargetItem(currentRoom, atItem, targetItem, secretItems)
 
       _ <- target.map( item => {
         if(item.pickable)
@@ -60,6 +63,7 @@ object Game {
             _ <- playSound("success.wav")
             _ <- putLineSlowly(s"You have picked up $item")
             _ <- update(playerInventoryL)(i => item :: i)
+            _ <- if(item.realWorld) putLineSlowly(s"Our elves have placed this item into your physical world, you need to find it in the corresponding place!") else nothing
 //            _ <- update(playerRoomL)(_ => room)
           } yield ()
         else putLineSlowly(s"You can't pick up the ${item.name}")
@@ -70,13 +74,14 @@ object Game {
       map <- get(mapL)
       currentRoom <- get(playerRoomL)
       atItem <- get(playerAtItemL)
-      target = findTargetItem(currentRoom, atItem, targetItem)
+      secretItems <- get(secretItemsL)
+      target = findTargetItem(currentRoom, atItem, targetItem, secretItems)
 
       _ <- target.map( item => {
         for {
           _ <- update(playerAtItemL)(_ => target)
           _ <- putLineSlowly(item.description)
-          _ <- putLineSlowly(item.hidden)
+          _ <- putLineSlowly(item.hidden(secretItems.get(item).getOrElse(Nil)))
         } yield ()
       }).getOrElse(putLineSlowly("Can't see that around here..."))
     } yield ()
@@ -86,7 +91,7 @@ object Game {
       inventory <- get(playerInventoryL)
       target = lookupItem(inventory, targetItem)
 
-      _ <- target.map( item => item.action).getOrElse(putLineSlowly("Don't have that"))
+      _ <- target.map( item => item.performAction).getOrElse(putLineSlowly("You don't have that"))
     } yield ()
 
     {

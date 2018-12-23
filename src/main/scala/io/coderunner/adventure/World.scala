@@ -1,6 +1,7 @@
 package io.coderunner.adventure
 
-import io.coderunner.adventure.Game.Game
+import io.coderunner.adventure.Console.putLineSlowly
+import io.coderunner.adventure.Game.{Game, get, lookupItem}
 import io.coderunner.adventure.Util.combinedString
 import monocle.Lens
 import monocle.macros.GenLens
@@ -10,7 +11,7 @@ object World {
   case class GameState(gameMap: GameMap, player: PlayerState)
   case class PlayerState(name: String, currentRoom: Room, inventory: List[Item], atItem: Option[Item])
 
-  case class GameMap(connections: Map[Room, List[Room]])
+  case class GameMap(connections: Map[Room, List[Room]], unlockedItems: Map[Item, List[Item]])
   case class Room(name: String, items: List[Item], preposition: String = "the ", ascii: String = "") {
     def describeItems: String = if(items.isEmpty) "There's nothing of interest here" else "You can see " + combinedString(items)
 
@@ -19,16 +20,24 @@ object World {
   }
   case class Item(name: String, description: String,
                   hiddenItems: List[Item] = Nil,
-                  action: Game[Unit] = Game.nothing,
+                  action: Game[Unit] = Console.putLineSlowly("You can't use that"),
+                  requires: List[Item] = Nil,
                   pickable: Boolean = false,
+                  realWorld: Boolean = false,
                   preposition: String = "a"){
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
-    def hidden: String = if(hiddenItems.isEmpty) "" else s"There is ${combinedString(hiddenItems)}"
+    def hidden(secret: List[Item] = Nil): String = if(hiddenItems.isEmpty) "" else s"There is ${combinedString(hiddenItems ++ secret)}"
+    def performAction: Game[Unit] = for {
+      inventory <- get(playerInventoryL)
+      _ <- if(requires.map(_.name).toSet -- inventory.map(_.name).toSet == Set.empty) action
+           else putLineSlowly(s"You can't use the $name until you have ${combinedString(requires)}")
+    } yield ()
   }
 
   val mapL: Lens[GameState, GameMap] = GenLens[GameState](_.gameMap)
   val playerL: Lens[GameState, PlayerState] = GenLens[GameState](_.player)
   val nameL = GenLens[PlayerState](_.name)
+  val unlockedItemsL = GenLens[GameMap](_.unlockedItems)
   val roomL = GenLens[PlayerState](_.currentRoom)
   val atItemL = GenLens[PlayerState](_.atItem)
   val inventoryL = GenLens[PlayerState](_.inventory)
@@ -36,5 +45,6 @@ object World {
   val playerRoomL = playerL composeLens roomL
   val playerAtItemL = playerL composeLens atItemL
   val playerInventoryL = playerL composeLens inventoryL
+  val secretItemsL = mapL composeLens unlockedItemsL
 
 }
