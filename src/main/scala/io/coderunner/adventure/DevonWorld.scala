@@ -6,43 +6,45 @@ object DevonWorld {
 
   // Rooms
   val barn = Room("barn", ascii = Ascii.barn, items = List(
-    Item("tractor", "", pickable = false),
-    Item("tools", "", pickable = false, preposition = ""),
-    Item("tablet", "", pickable = false)))
+    Item("tractor", ""),
+    Item("tools", "", preposition = ""),
+    Item("tablet", "")))
   val outside = Room("outside", preposition = "", ascii = Ascii.outside, items = List(
-    Item("post box", "", pickable = false),
-    Item("cars", "", pickable = false, preposition = ""),
-    Item("vegetables", "Maybe come back in Spring, it's all a bit barren out here now", pickable = false, preposition = "some")))
+    Item("post box", ""),
+    Item("cars", "", preposition = ""),
+    Item("vegetables", "Maybe come back in Spring, it's all a bit barren out here now", preposition = "some")))
   val diningRoom = Room("dining room", ascii = Ascii.diningRoom, items = List(
-    Item("table", "", pickable = false),
-    Item("coat", "One of the pockets seems to have a strange object inside...", pickable = false),
-    Item("laptop", "", pickable = false),
-    Item("glassware cabinet", "", pickable = false),
-    Item("goodies cabinet", "", pickable = false)))
+    Item("table", "A fine table, made of solid wood", hiddenItems = List(
+      Item("instructions", "Something useful", pickable = true, preposition = "some")
+    )),
+    Item("coat", "One of the pockets seems to have a strange object inside..."),
+    Item("laptop", ""),
+    Item("glassware cabinet", ""),
+    Item("goodies cabinet", "")))
   val kitchen = Room("kitchen", ascii = Ascii.kitchen, items = List(
-    Item("kettle", "", pickable = false),
-    Item("fridge", "", pickable = false),
-    Item("recycling basket", "", pickable = false),
-    Item("phil", "", pickable = false, preposition = "")
+    Item("kettle", ""),
+    Item("fridge", ""),
+    Item("recycling basket", ""),
+    Item("phil", "", preposition = "")
   ))
   val hallway = Room("hallway", ascii = Ascii.hallway, items = List(
-    Item("freezer", "", pickable = false),
-    Item("tumble dryer", "", pickable = false),
-    Item("drinks cupboard", "", pickable = false)
+    Item("freezer", ""),
+    Item("tumble dryer", ""),
+    Item("drinks cupboard", "")
   ))
   val study = Room("study", ascii = Ascii.study, items = List(
-    Item("bookcase", "", pickable = false)
+    Item("bookcase", "")
   ))
   val toilet = Room("toilet", ascii = Ascii.toilet, items = List(
-    Item("sink", "", pickable = false),
-    Item("shower", "", pickable = false),
-    Item("toilet", "", pickable = false)
+    Item("sink", ""),
+    Item("shower", ""),
+    Item("toilet", "")
   ))
   val livingRoom = Room("living room", ascii = Ascii.livingRoom, items = List(
-    Item("sofa", "", pickable = false),
-    Item("phone", "", pickable = false),
-    Item("tv", "", pickable = false),
-    Item("stairs", "", pickable = false)
+    Item("sofa", ""),
+    Item("phone", ""),
+    Item("tv", ""),
+    Item("stairs", "")
   ))
 
   val connections = Map(

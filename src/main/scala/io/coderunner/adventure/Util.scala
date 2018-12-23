@@ -6,6 +6,7 @@ object Util {
 
     def loop(items: List[A], built: String): String = items match {
       case Nil => ""
+      case r :: Nil if built.isEmpty => s"$r"
       case r :: Nil => s"${built} and $r"
       case r :: t => loop(t, s"${built} $r, ")
     }

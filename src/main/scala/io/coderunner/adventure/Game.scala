@@ -22,8 +22,12 @@ object Game {
     gameMap.connections.keys.find(_.name.toLowerCase.trim == targetRoom.toLowerCase.trim)
   }
 
-  def findTargetItem(room: Room, targetItem: String): Option[Item] = {
-    room.items.find(_.name.toLowerCase.trim == targetItem.toLowerCase.trim)
+  def findTargetItem(room: Room, atItem: Option[Item], targetItem: String): Option[Item] = {
+    def lookupItem(items: List[Item]): Option[Item] = items.find(_.name.toLowerCase.trim == targetItem.toLowerCase.trim)
+
+    lazy val visibleItem = lookupItem(room.items)
+    lazy val hiddenItem = atItem.map(_.hiddenItems).flatMap(lookupItem)
+    visibleItem orElse hiddenItem
   }
 
   import Action._
@@ -36,7 +40,10 @@ object Game {
 
       _ <- target.map( room => {
         if(validMove(currentRoom, room, map.connections))
-                  update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => displayRoomInfo)
+                  for {
+                    _ <- update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => displayRoomInfo)
+                    _ <- update(playerAtItemL)(_ => None) //No longer at an item if moving
+                  } yield ()
                 else putLineSlowly(s"You can't get to $targetRoom from here", "response")
       }).getOrElse(putLineSlowly("That place does not exist!", "response"))
     } yield ()
@@ -44,11 +51,16 @@ object Game {
     def tryPickUp(targetItem: String): Game[Unit] = for {
       map <- get(mapL)
       currentRoom <- get(playerRoomL)
-      target = findTargetItem(currentRoom, targetItem)
+      atItem <- get(playerAtItemL)
+      target = findTargetItem(currentRoom, atItem, targetItem)
 
       _ <- target.map( item => {
         if(item.pickable)
-          playSound("success.wav")
+          for {
+            _ <- playSound("success.wav")
+            _ <- putLineSlowly(s"You have picked up $item")
+//            _ <- update(playerRoomL)(_ => room)
+          } yield ()
         else putLineSlowly(s"You can't pick up the ${item.name}")
       }).getOrElse(putLineSlowly("Can't see that around here..."))
     } yield ()
@@ -56,10 +68,15 @@ object Game {
     def tryInspect(targetItem: String): Game[Unit] = for {
       map <- get(mapL)
       currentRoom <- get(playerRoomL)
-      target = findTargetItem(currentRoom, targetItem)
+      atItem <- get(playerAtItemL)
+      target = findTargetItem(currentRoom, atItem, targetItem)
 
       _ <- target.map( item => {
-        putLineSlowly(item.description)
+        for {
+          _ <- update(playerAtItemL)(_ => target)
+          _ <- putLineSlowly(item.description)
+          _ <- putLineSlowly(item.hidden)
+        } yield ()
       }).getOrElse(putLineSlowly("Can't see that around here..."))
     } yield ()
 
@@ -153,6 +170,6 @@ object Game {
 
   @JSExport
   def main(args: Array[String]): Unit = {
-    preLoop.run(GameState(DevonWorld.gameMap, PlayerState("", DevonWorld.diningRoom, Nil))).unsafeRunAsyncAndForget()
+    preLoop.run(GameState(DevonWorld.gameMap, PlayerState("", DevonWorld.diningRoom, Nil, None))).unsafeRunAsyncAndForget()
   }
 }
