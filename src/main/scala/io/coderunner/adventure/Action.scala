@@ -18,12 +18,13 @@ object Action {
     lazy val inspect: Parser[Action] = ("inspect" | "examine" | "look in" | "look at") ~ word ^^ { case _ ~ item => Inspect(item) }
     lazy val look: Parser[Action] = "look" ^^^ Look
     lazy val inventory: Parser[Action] = ("inventory" | "items" | "backpack") ^^^ Inventory
+    lazy val use: Parser[Action] = ("use" | "view") ~ ("the"?) ~ word ^^ { case _ ~ item => Use(item) }
 
     lazy val xmas: Parser[Action] = "xmas" ^^^ Xmas
     lazy val twinkle: Parser[Action] = "twinkle" ^^^ Twinkle
     lazy val stop: Parser[Action] = "stop" ^^^ Stop
 
-    def grammar: Parser[Action] =  goto | pickUp | inspect | inventory | look | xmas | twinkle | stop
+    def grammar: Parser[Action] =  goto | pickUp | inspect | inventory | use | look | xmas | twinkle | stop
 
   }
 
@@ -37,6 +38,7 @@ object Action {
   case class Goto(room: String) extends Action
   case class PickUp(item: String) extends Action
   case class Inspect(item: String) extends Action
+  case class Use(item: String) extends Action
   case object Inventory extends Action
   case object Xmas extends Action
   case object Twinkle extends Action

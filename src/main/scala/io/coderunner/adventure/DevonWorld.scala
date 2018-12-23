@@ -3,6 +3,7 @@ package io.coderunner.adventure
 import io.coderunner.adventure.World.{GameMap, Item, Room}
 
 object DevonWorld {
+  import Console._
 
   // Rooms
   val barn = Room("barn", ascii = Ascii.barn, items = List(
@@ -15,7 +16,8 @@ object DevonWorld {
     Item("vegetables", "Maybe come back in Spring, it's all a bit barren out here now", preposition = "some")))
   val diningRoom = Room("dining room", ascii = Ascii.diningRoom, items = List(
     Item("table", "A fine table, made of solid wood", hiddenItems = List(
-      Item("instructions", "Something useful", pickable = true, preposition = "some")
+      Item("instructions", "Something useful", pickable = true, preposition = "some",
+        action = putLineSlowly("blah blah blah"))
     )),
     Item("coat", "One of the pockets seems to have a strange object inside..."),
     Item("laptop", ""),

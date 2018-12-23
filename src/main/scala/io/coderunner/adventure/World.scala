@@ -1,5 +1,6 @@
 package io.coderunner.adventure
 
+import io.coderunner.adventure.Game.Game
 import io.coderunner.adventure.Util.combinedString
 import monocle.Lens
 import monocle.macros.GenLens
@@ -16,7 +17,11 @@ object World {
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
     def inString: String = s"${if (preposition.isEmpty) "" else "in"} $preposition ${name.toLowerCase.trim}"
   }
-  case class Item(name: String, description: String, hiddenItems: List[Item] = Nil, pickable: Boolean = false, preposition: String = "a"){
+  case class Item(name: String, description: String,
+                  hiddenItems: List[Item] = Nil,
+                  action: Game[Unit] = Game.nothing,
+                  pickable: Boolean = false,
+                  preposition: String = "a"){
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
     def hidden: String = if(hiddenItems.isEmpty) "" else s"There is ${combinedString(hiddenItems)}"
   }

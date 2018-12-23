@@ -22,11 +22,11 @@ object Game {
     gameMap.connections.keys.find(_.name.toLowerCase.trim == targetRoom.toLowerCase.trim)
   }
 
-  def findTargetItem(room: Room, atItem: Option[Item], targetItem: String): Option[Item] = {
-    def lookupItem(items: List[Item]): Option[Item] = items.find(_.name.toLowerCase.trim == targetItem.toLowerCase.trim)
+  def lookupItem(items: List[Item], targetItem: String): Option[Item] = items.find(_.name.toLowerCase.trim == targetItem.toLowerCase.trim)
 
-    lazy val visibleItem = lookupItem(room.items)
-    lazy val hiddenItem = atItem.map(_.hiddenItems).flatMap(lookupItem)
+  def findTargetItem(room: Room, atItem: Option[Item], targetItem: String): Option[Item] = {
+    lazy val visibleItem = lookupItem(room.items, targetItem)
+    lazy val hiddenItem = atItem.map(_.hiddenItems).flatMap(items => lookupItem(items, targetItem))
     visibleItem orElse hiddenItem
   }
 
@@ -81,6 +81,14 @@ object Game {
       }).getOrElse(putLineSlowly("Can't see that around here..."))
     } yield ()
 
+    def tryUse(targetItem: String): Game[Unit] = for {
+      map <- get(mapL)
+      inventory <- get(playerInventoryL)
+      target = lookupItem(inventory, targetItem)
+
+      _ <- target.map( item => item.action).getOrElse(putLineSlowly("Don't have that"))
+    } yield ()
+
     {
       case Look => clearOutput.flatMap(_ => displayRoomInfo)
       case Xmas => playSound("MerryXmas.mp3")
@@ -88,6 +96,7 @@ object Game {
       case Goto(room) => tryMove(room)
       case PickUp(item) => tryPickUp(item)
       case Inspect(item) => tryInspect(item)
+      case Use(item) => tryUse(item)
       case Inventory => displayInventory
       case Stop => stopSound
       case _ => putLineSlowly("I'm sorry, I don't understand that right now")
