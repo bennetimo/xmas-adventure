@@ -8,6 +8,7 @@ import scala.util.Random
 import World._
 import DevonWorld._
 import Game._
+import Music._
 
 object ItemActions {
 
@@ -18,6 +19,7 @@ object ItemActions {
       password <- getLine
       _ <- if(password == "festive") {
         for {
+          _ <- playSound("windows7.mp3")
           _ <- putLineSlowly("The password was correct, and the screen is now displaying a word document")
           _ <- putLineSlowly("All that is written is: ")
           _ <- putLineSlowly("50.801033, -3.985236")
@@ -66,6 +68,7 @@ object ItemActions {
       number <- getLine
       _ <- if(number == "888") {
         for {
+          _ <- playSound("phone.wav")
           _ <- putLineSlowly("It's ringing...")
           _ <- putLineSlowly("Brp Brp... Brp Brp...")
           _ <- putLineSlowly("Hello! Welcome to the CRACK A JOKE service! Dial a digit now for a joke")
@@ -82,6 +85,7 @@ object ItemActions {
 
   def useKettle: Game[Unit] = {
     for {
+      _  <- playSound("kettle.wav")
       _  <- putLineSlowly("You stick the kettle on to boil and prepare all the cups. Yep that's right, everyone wanted a cup AGAIN. Of course.")
       _  <- putLineSlowly("While you're waiting for it to brew, you turn around and notice something on top of the fridge...")
       unlocked <- get(secretItemsL)

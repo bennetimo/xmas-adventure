@@ -12,7 +12,7 @@ object World {
   case class PlayerState(name: String, currentRoom: Room, inventory: List[Item], atItem: Option[Item])
 
   case class GameMap(connections: Map[Room, List[Room]], unlockedItems: Map[Item, List[Item]])
-  case class Room(name: String, items: List[Item], preposition: String = "the ", ascii: String = "") {
+  case class Room(name: String, items: List[Item], preposition: String = "the ", ascii: String = "", sound: Option[String] = None) {
     def describeItems: String = if(items.isEmpty) "There's nothing of interest here" else "You can see " + combinedString(items)
 
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
@@ -24,7 +24,8 @@ object World {
                   requires: List[Item] = Nil,
                   pickable: Boolean = false,
                   realWorld: Boolean = false,
-                  preposition: String = "a"){
+                  preposition: String = "a",
+                  sound: Option[String] = None){
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
     def hidden(secret: List[Item] = Nil): String = if(hiddenItems.isEmpty) "" else s"There is ${combinedString(hiddenItems ++ secret)}"
     def performAction: Game[Unit] = for {

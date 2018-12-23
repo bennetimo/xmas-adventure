@@ -43,6 +43,8 @@ object Game {
       _ <- target.map( room => {
         if(validMove(currentRoom, room, map.connections))
                   for {
+                    _ <- stopSound // Cancel any current sounds
+                    _ <- room.sound.map(s => playSound(s)).getOrElse(nothing)
                     _ <- update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => displayRoomInfo)
                     _ <- update(playerAtItemL)(_ => None) //No longer at an item if moving
                   } yield ()
@@ -63,7 +65,7 @@ object Game {
             _ <- playSound("success.wav")
             _ <- putLineSlowly(s"You have picked up $item")
             _ <- update(playerInventoryL)(i => item :: i)
-            _ <- if(item.realWorld) putLineSlowly(s"Our elves have placed this item into your physical world, you need to find it in the corresponding place!") else nothing
+            _ <- if(item.realWorld) putLineSlowly(s"Our elves have placed this item into your physical world, you need to find it in the corresponding place!").flatMap(_ => playSound("collect.wav")) else nothing
 //            _ <- update(playerRoomL)(_ => room)
           } yield ()
         else putLineSlowly(s"You can't pick up the ${item.name}")
@@ -80,6 +82,7 @@ object Game {
       _ <- target.map( item => {
         for {
           _ <- update(playerAtItemL)(_ => target)
+          _ <- item.sound.map(s => stopSound.flatMap(_ => playSound(s))).getOrElse(nothing)
           _ <- putLineSlowly(item.description)
           _ <- if(item.hiddenItems.isEmpty) nothing else putLineSlowly(item.hidden(secretItems.get(item).getOrElse(Nil)))
         } yield ()
@@ -133,25 +136,25 @@ object Game {
 
   def preLoop: Game[Unit] = for {
     _ <- putLine(Ascii.logo, "pre")
-    _ <- putLineSlowly(Messages.introOne)
-    name <- getName
-    _ <- putLineSlowly("Finding an elf...")
-    _ <- loadingBar
-    _ <- putLineSlowly(Messages.introTwo, newLine = false)
-    _ <- loadingBar
-    _ <- putLineSlowly(Messages.introThree)
-    _ <- putLineSlowly("Did you get that?")
-    input <- getLine
-    _ <- handleInputResponse(input)
-    _ <- clearInput
-    _ <- putLineSlowly(Messages.introFour)
-    input <- getLine
-    _ <- handleInputResponse(input)
-    _ <- clearInput
-    _ <- putLineSlowly("Initialising magic world...")
-    _ <- loadingBar
-    _ <- putLineSlowly("Bridging physical world...")
-    _ <- loadingBar
+//    _ <- putLineSlowly(Messages.introOne)
+//    name <- getName
+//    _ <- putLineSlowly("Finding an elf...")
+//    _ <- loadingBar
+//    _ <- putLineSlowly(Messages.introTwo, newLine = false)
+//    _ <- loadingBar
+//    _ <- putLineSlowly(Messages.introThree)
+//    _ <- putLineSlowly("Did you get that?")
+//    input <- getLine
+//    _ <- handleInputResponse(input)
+//    _ <- clearInput
+//    _ <- putLineSlowly(Messages.introFour)
+//    input <- getLine
+//    _ <- handleInputResponse(input)
+//    _ <- clearInput
+//    _ <- putLineSlowly("Initialising magic world...")
+//    _ <- loadingBar
+//    _ <- putLineSlowly("Bridging physical world...")
+//    _ <- loadingBar
     _ <- putLineSlowly("Good luck! We hope that you have been nice :)")
     _ <- pause()
     _ <- clearInput

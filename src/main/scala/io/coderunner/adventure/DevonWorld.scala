@@ -24,7 +24,8 @@ object DevonWorld {
       Item("envelope", "It's sealed, I wonder what's inside", pickable = true, realWorld = true, preposition = "an")
     )),
     Item("cars", "Yep, just lots of cars. Bit jammed in, luckily we're not going anywhere right now", preposition = ""),
-    Item("vegetables", "Maybe come back in Spring, it's all a bit barren out here now", preposition = "some")))
+    Item("vegetables", "Maybe come back in Spring, it's all a bit barren out here now", preposition = "some")),
+    sound = Some("birds.wav"))
   val diningRoom = Room("dining room", ascii = Ascii.diningRoom, items = List(
     Item("table", "A fine table, made of solid wood. Many fun evenings have been had round here. This one too!", hiddenItems = List(
       Item("instructions", "Something useful", pickable = true, preposition = "some",
@@ -38,7 +39,7 @@ object DevonWorld {
     Item("laptop", "A fairly old machine, but still does the job", pickable = true,
       action = useLaptop),
     Item("glassware cabinet", "There's lots of shiny glasses in here. Can't see anything else though"),
-    Item("goodies cabinet", "Hmm, there's normally somemething in here...", hiddenItems = List(
+    Item("goodies cabinet", "Hmm, there's normally something in here...", hiddenItems = List(
       Item("chocolate", "soft and delicious!", pickable = true, action = putLineSlowly("You enjoy a tasty piece of chocolate. Now... back to the challenge..."))
     )),
     Item("stairs", "I'll go upstairs to bed later, but right now I've got to solve this puzzle", preposition = "some")
@@ -59,15 +60,15 @@ object DevonWorld {
     )),
     fridge,
     Item("recycling basket", "There's just some junk mail in here. One of them is advertising a dial-a-joke service on number 888. Guess if I had a phone I could try that"),
-    Item("phil", "He's doing the washing up, don't disturb his flow!", preposition = "")
+    Item("phil", "He's doing the washing up, don't disturb his flow!", preposition = "", sound = Some("washingup.wav"))
   ))
   val hallway = Room("hallway", ascii = Ascii.hallway, items = List(
-    Item("aiko", "Meow Meow!", preposition = ""),
+    Item("aiko", "Meow Meow!", preposition = "", sound = Some("meow.wav")),
     Item("freezer", "A big chest freezer, full of Christmas yummies! Hey, there's something on top of it!", preposition = "the", hiddenItems = List(
-      Item("jackson", "Purr Purr...!", preposition = ""),
+      Item("jackson", "Purr Purr...!", preposition = "", sound = Some("meow.wav")),
     )),
     Item("drinks cupboard", "It's dark in here", preposition = "the", hiddenItems = List(
-      Item("light", "You turn on the light, but all you find is drinks.", preposition = "the"),
+      Item("light", "You turn on the light, but all you find is drinks.", preposition = "the", sound = Some("lightswitch.wav")),
     )),
   ))
   val study = Room("study", ascii = Ascii.study, items = List(
@@ -91,7 +92,7 @@ object DevonWorld {
         action = putLineSlowly("It clearly opens something... but what?"))
     )),
     Item("phone", s"There's been a few missed calls, and you got a text message from Tim: ${ItemActions.limerick}", pickable = true, action = usePhone),
-    Item("tv", "Loads of Christmas films on right now! Who's got the radio times?"),
+    Item("tv", "Not much on right now, who's got the radio times to find all the Christmas films??", sound = Some("tv.wav")),
     Item("stairs", "Sorry, Santa's elves didn't have enough time to create the magic of upstairs", preposition =  "the")
   ))
 
