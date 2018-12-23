@@ -13,7 +13,7 @@ object ItemActions {
 
   def useLaptop: Game[Unit] = {
     for {
-      _  <- putLineSlowly("Looks like someone was looking at something on here, but the screen has locked with a password ")
+      _  <- putLineSlowly("Looks like someone was looking at something on here, but the screen is locked with a password ")
       _  <- putLineSlowly("Enter password: ")
       password <- getLine
       _ <- if(password == "festive") {
@@ -83,7 +83,7 @@ object ItemActions {
   def useKettle: Game[Unit] = {
     for {
       _  <- putLineSlowly("You stick the kettle on to boil and prepare all the cups. Yep that's right, everyone wanted a cup AGAIN. Of course.")
-      _  <- putLineSlowly("While you're waiting it to brew, you turn around and notice something on top of the fridge...")
+      _  <- putLineSlowly("While you're waiting for it to brew, you turn around and notice something on top of the fridge...")
       unlocked <- get(secretItemsL)
       current = unlocked.get(fridge)
       _ <- update(secretItemsL)(m => m.updated(fridge, playingCards :: current.getOrElse(Nil)))

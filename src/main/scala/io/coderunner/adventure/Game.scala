@@ -46,8 +46,8 @@ object Game {
                     _ <- update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => displayRoomInfo)
                     _ <- update(playerAtItemL)(_ => None) //No longer at an item if moving
                   } yield ()
-                else putLineSlowly(s"You can't get to $targetRoom from here", "response")
-      }).getOrElse(putLineSlowly("That place does not exist!", "response"))
+                else putLineSlowly(s"You can't get to $targetRoom from here")
+      }).getOrElse(putLineSlowly("That place does not exist!"))
     } yield ()
 
     def tryPickUp(targetItem: String): Game[Unit] = for {
@@ -81,7 +81,7 @@ object Game {
         for {
           _ <- update(playerAtItemL)(_ => target)
           _ <- putLineSlowly(item.description)
-          _ <- putLineSlowly(item.hidden(secretItems.get(item).getOrElse(Nil)))
+          _ <- if(item.hiddenItems.isEmpty) nothing else putLineSlowly(item.hidden(secretItems.get(item).getOrElse(Nil)))
         } yield ()
       }).getOrElse(putLineSlowly("Can't see that around here..."))
     } yield ()

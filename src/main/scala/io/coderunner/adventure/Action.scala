@@ -12,7 +12,7 @@ object Action {
 
     def word: Parser[String]   = """[a-zA-Z ]+""".r ^^ { _.toString }
 
-    lazy val goto: Parser[Action] = ("go" | "move") ~ ("to"?) ~ word ^^ { case _ ~ room => Goto(room) }
+    lazy val goto: Parser[Action] = ("go" | "move") ~ ("to"?) ~ ("the"?) ~ word ^^ { case _ ~ room => Goto(room) }
 
     lazy val pickUp: Parser[Action] = ("pick" | "take" | "grab") ~ ("up"?) ~ word ^^ { case _ ~ item => PickUp(item) }
     lazy val inspect: Parser[Action] = ("inspect" | "examine" | "look in" | "look at" | "look inside") ~ ("the"?) ~ word ^^ { case _ ~ item => Inspect(item) }
