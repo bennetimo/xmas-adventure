@@ -42,4 +42,13 @@ object Messages {
       |Are you ready to start the challenge?
     """.stripMargin
 
+  val win =
+    """
+      |Well done, you did it! You must have been very nice this year to have been able to get this far and retrieve your present!
+      |<br/><br/>
+      |Enjoy your cracker sound now, and if you get annoyed with it, just type 'stop' and our elves will shut it off for you!
+      |<br/><br/>
+      |Thank you for using Santa's Workshop... we look forward to seeing you again next year!
+    """.stripMargin
+
 }

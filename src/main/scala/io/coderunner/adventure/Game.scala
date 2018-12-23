@@ -96,7 +96,7 @@ object Game {
 
     {
       case Look => clearOutput.flatMap(_ => displayRoomInfo)
-      case Xmas => playSound("MerryXmas.mp3")
+      case Win => win
       case Twinkle => playSound("success.wav")
       case Goto(room) => tryMove(room)
       case PickUp(item) => tryPickUp(item)
@@ -106,6 +106,16 @@ object Game {
       case Stop => stopSound
       case _ => putLineSlowly("I'm sorry, I don't understand that right now")
     }
+  }
+
+  def win: Game[Unit] = {
+    for {
+      _ <- clearOutput
+      _ <- putLineSlowly(Messages.win)
+      _ <- pause()
+      _ <- playSound("MerryXmas.mp3")
+      _ <- putLine(Ascii.win, "pre")
+    } yield ()
   }
 
   def gameLoop: Game[Unit] = {
