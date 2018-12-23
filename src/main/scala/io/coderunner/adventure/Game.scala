@@ -135,23 +135,23 @@ object Game {
     _ <- putLine(Ascii.logo, "pre")
     _ <- putLineSlowly(Messages.introOne)
     name <- getName
-//    _ <- putLineSlowly("Finding an elf...")
-//    _ <- loadingBar
-//    _ <- putLineSlowly(Messages.introTwo, newLine = false)
-//    _ <- loadingBar
-//    _ <- putLineSlowly(Messages.introThree)
-//    _ <- putLineSlowly("Did you get that?")
-//    input <- getLine
-//    _ <- handleInputResponse(input)
-//    _ <- clearInput
-//    _ <- putLineSlowly(Messages.introFour)
-//    input <- getLine
-//    _ <- handleInputResponse(input)
-//    _ <- clearInput
-//    _ <- putLineSlowly("Initialising magic world...")
-//    _ <- loadingBar
-//    _ <- putLineSlowly("Bridging physical world...")
-//    _ <- loadingBar
+    _ <- putLineSlowly("Finding an elf...")
+    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introTwo, newLine = false)
+    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introThree)
+    _ <- putLineSlowly("Did you get that?")
+    input <- getLine
+    _ <- handleInputResponse(input)
+    _ <- clearInput
+    _ <- putLineSlowly(Messages.introFour)
+    input <- getLine
+    _ <- handleInputResponse(input)
+    _ <- clearInput
+    _ <- putLineSlowly("Initialising magic world...")
+    _ <- loadingBar
+    _ <- putLineSlowly("Bridging physical world...")
+    _ <- loadingBar
     _ <- putLineSlowly("Good luck! We hope that you have been nice :)")
     _ <- pause()
     _ <- clearInput
