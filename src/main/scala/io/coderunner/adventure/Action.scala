@@ -10,17 +10,19 @@ object Action {
 
   private object parser extends RegexParsers {
 
-    def room: Parser[Goto]   = """[a-zA-Z ]+""".r       ^^ { s => Goto.apply(s.toString) }
-    def item: Parser[PickUp]   = """[a-zA-Z ]+""".r       ^^ { s => PickUp.apply(s.toString) }
+    def word: Parser[String]   = """[a-zA-Z ]+""".r ^^ { _.toString }
 
+    lazy val goto: Parser[Action] = ("go" | "move") ~ ("to"?) ~ word ^^ { case _ ~ room => Goto(room) }
+
+    lazy val pickUp: Parser[Action] = ("pick" | "take" | "grab") ~ ("up"?) ~ word ^^ { case _ ~ item => PickUp(item) }
+    lazy val inspect: Parser[Action] = ("inspect" | "examine" | "look in") ~ word ^^ { case _ ~ item => Inspect(item) }
     lazy val look: Parser[Action] = "look" ^^^ Look
-    lazy val goto: Parser[Action] = "goto " ~ room ^^ { case _ ~ room => room }
-    lazy val pickUp: Parser[Action] = "pick up " ~ item ^^ { case _ ~ item => item }
+
     lazy val xmas: Parser[Action] = "xmas" ^^^ Xmas
     lazy val twinkle: Parser[Action] = "twinkle" ^^^ Twinkle
     lazy val stop: Parser[Action] = "stop" ^^^ Stop
 
-    def grammar: Parser[Action] = look | goto | pickUp | xmas | twinkle | stop
+    def grammar: Parser[Action] =  goto | pickUp | inspect | look | xmas | twinkle | stop
 
   }
 
@@ -33,6 +35,7 @@ object Action {
   case object Look extends Action
   case class Goto(room: String) extends Action
   case class PickUp(item: String) extends Action
+  case class Inspect(item: String) extends Action
   case object Xmas extends Action
   case object Twinkle extends Action
   case object Stop extends Action

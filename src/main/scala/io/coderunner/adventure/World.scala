@@ -16,7 +16,7 @@ object World {
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
     def inString: String = s"${if (preposition.isEmpty) "" else "in"} $preposition ${name.toLowerCase.trim}"
   }
-  case class Item(name: String, pickable: Boolean, preposition: String = "a"){
+  case class Item(name: String, description: String, pickable: Boolean, preposition: String = "a"){
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"
   }
 

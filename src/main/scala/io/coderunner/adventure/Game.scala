@@ -36,7 +36,7 @@ object Game {
 
       _ <- target.map( room => {
         if(validMove(currentRoom, room, map.connections))
-                  update(playerRoomL)(_ => room).flatMap(_ => clearOutput)
+                  update(playerRoomL)(_ => room).flatMap(_ => clearOutput).flatMap(_ => displayRoomInfo)
                 else putLineSlowly(s"You can't get to $targetRoom from here", "response")
       }).getOrElse(putLineSlowly("That place does not exist!", "response"))
     } yield ()
@@ -49,25 +49,35 @@ object Game {
       _ <- target.map( item => {
         if(item.pickable)
           playSound("success.wav")
-        else putLineSlowly(s"You can't pick up the ${item.name}", "response")
-      }).getOrElse(putLineSlowly("Can't see that around here...", "response"))
+        else putLineSlowly(s"You can't pick up the ${item.name}")
+      }).getOrElse(putLineSlowly("Can't see that around here..."))
+    } yield ()
+
+    def tryInspect(targetItem: String): Game[Unit] = for {
+      map <- get(mapL)
+      currentRoom <- get(playerRoomL)
+      target = findTargetItem(currentRoom, targetItem)
+
+      _ <- target.map( item => {
+        putLineSlowly(item.description)
+      }).getOrElse(putLineSlowly("Can't see that around here..."))
     } yield ()
 
     {
-      case Look => displayRoomInfo
+      case Look => clearOutput.flatMap(_ => displayRoomInfo)
       case Xmas => playSound("MerryXmas.mp3")
       case Twinkle => playSound("success.wav")
       case Goto(room) => tryMove(room)
       case PickUp(item) => tryPickUp(item)
+      case Inspect(item) => tryInspect(item)
       case Stop => stopSound
-      case _ => putLineSlowly("I'm sorry, I don't understand that right now", "response")
+      case _ => putLineSlowly("I'm sorry, I don't understand that right now")
     }
   }
 
   def gameLoop: Game[Unit] = {
     (for {
       gs <- StateT.get[IO, GameState]
-      _ <- displayRoomInfo
       _ <- scroll
       _ <- prompt(">>  ")
       action <- getLine.map(Action.parse)
@@ -82,27 +92,28 @@ object Game {
     _ <- putLine(Ascii.logo, "pre")
     _ <- putLineSlowly(Messages.introOne)
     name <- getName
-    _ <- putLineSlowly("Finding an elf...")
-    _ <- loadingBar
-    _ <- putLineSlowly(Messages.introTwo, newLine = false)
-    _ <- loadingBar
-    _ <- putLineSlowly(Messages.introThree)
-    _ <- putLineSlowly("Did you get that?")
-    input <- getLine
-    _ <- handleInputResponse(input)
-    _ <- clearInput
-    _ <- putLineSlowly(Messages.introFour)
-    input <- getLine
-    _ <- handleInputResponse(input)
-    _ <- clearInput
-    _ <- putLineSlowly("Initialising magic world...")
-    _ <- loadingBar
-    _ <- putLineSlowly("Bridging physical world...")
-    _ <- loadingBar
+//    _ <- putLineSlowly("Finding an elf...")
+//    _ <- loadingBar
+//    _ <- putLineSlowly(Messages.introTwo, newLine = false)
+//    _ <- loadingBar
+//    _ <- putLineSlowly(Messages.introThree)
+//    _ <- putLineSlowly("Did you get that?")
+//    input <- getLine
+//    _ <- handleInputResponse(input)
+//    _ <- clearInput
+//    _ <- putLineSlowly(Messages.introFour)
+//    input <- getLine
+//    _ <- handleInputResponse(input)
+//    _ <- clearInput
+//    _ <- putLineSlowly("Initialising magic world...")
+//    _ <- loadingBar
+//    _ <- putLineSlowly("Bridging physical world...")
+//    _ <- loadingBar
     _ <- putLineSlowly("Good luck! We hope that you have been nice :)")
     _ <- pause()
     _ <- clearInput
     _ <- clearOutput
+    _ <- displayRoomInfo
     _ <- gameLoop
   } yield ()
 
@@ -115,7 +126,7 @@ object Game {
     _ <- putLineSlowly(s"You are ${room.inString}")
     _ <- putLineSlowly(room.describeItems)
     connected = map.connections.get(room).getOrElse(Nil)
-    _ <- putLineSlowly(s"You can goto ${combinedString(connected)} from here")
+    _ <- putLineSlowly(s"You can go to ${combinedString(connected)} from here")
   } yield Unit
 
   def state[A](f: GameState => (GameState, A)): Game[A] = StateT[IO, GameState, A](s => IO(f(s)))
