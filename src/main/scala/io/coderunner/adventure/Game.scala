@@ -65,7 +65,7 @@ object Game {
             _ <- playSound("success.wav")
             _ <- putLineSlowly(s"You have picked up $item")
             _ <- update(playerInventoryL)(i => item :: i)
-            _ <- if(item.realWorld) putLineSlowly(s"Our elves have placed this item into your physical world, you need to find it in the corresponding place!").flatMap(_ => playSound("collect.wav")) else nothing
+            _ <- if(item.realWorld) putLineSlowly(s"Our elves have placed this item into your physical world, you need to find it in the corresponding place!").flatMap(_ => playSound("tinkle.wav")) else nothing
 //            _ <- update(playerRoomL)(_ => room)
           } yield ()
         else putLineSlowly(s"You can't pick up the ${item.name}")
@@ -200,6 +200,7 @@ object Game {
     room <- get(playerRoomL)
     _ <- putLine(room.ascii, "pre")
     _ <- putLineSlowly(s"You are ${room.inString}")
+    _ <- room.description.map(s => putLineSlowly(s)).getOrElse(nothing)
     _ <- putLineSlowly(room.describeItems)
     connected = map.connections.get(room).getOrElse(Nil)
     _ <- putLineSlowly(s"You can go to ${combinedString(connected)} from here")

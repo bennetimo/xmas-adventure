@@ -12,7 +12,7 @@ object World {
   case class PlayerState(name: String, currentRoom: Room, inventory: List[Item], atItem: Option[Item], realItemsFound: Int)
 
   case class GameMap(connections: Map[Room, List[Room]], unlockedItems: Map[Item, List[Item]])
-  case class Room(name: String, items: List[Item], preposition: String = "the ", ascii: String = "", sound: Option[String] = None) {
+  case class Room(name: String, items: List[Item], preposition: String = "the ", ascii: String = "", sound: Option[String] = None, description: Option[String] = None) {
     def describeItems: String = if(items.isEmpty) "There's nothing of interest here" else "You can see " + combinedString(items)
 
     override def toString: String = s"$preposition ${name.toLowerCase.trim}"

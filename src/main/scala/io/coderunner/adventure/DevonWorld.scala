@@ -13,20 +13,20 @@ object DevonWorld {
   )
 
   // Rooms
-  val barn = Room("barn", ascii = Ascii.barn, items = List(
+  val barn = Room("barn", description = Some("Ah a favourite retreat. Many a good YouTube video watched in here"), ascii = Ascii.barn, items = List(
     Item("tractor", "A legend of a machine, it only just fits! Oh, and there's something behind it", hiddenItems = List(
       Item("box", "Some kind of box", pickable = true, realWorld = true)
     )),
     Item("tools", "Lots of jobs, and right tool for the job, means lots of tools. No DIY tonight though, beer instead!", preposition = ""),
     Item("tablet", "Someone's been watching random videos on YouTube again! Not much use to me though")))
-  val outside = Room("outside", preposition = "", ascii = Ascii.outside, items = List(
+  val outside = Room("outside", description = Some("Brr! It's chilly out here!"), preposition = "", ascii = Ascii.outside, items = List(
     Item("post box", "It's just by the road, getting a lot of use around Christmas time. Hold on, it looks like there is still something in it...", hiddenItems = List(
       Item("envelope", "It's sealed, I wonder what's inside", pickable = true, realWorld = true, preposition = "an")
     )),
     Item("cars", "Yep, just lots of cars. Bit jammed in, luckily we're not going anywhere right now", preposition = ""),
     Item("vegetables", "Maybe come back in Spring, it's all a bit barren out here now", preposition = "some")),
     sound = Some("birds.wav"))
-  val diningRoom = Room("dining room", ascii = Ascii.diningRoom, items = List(
+  val diningRoom = Room("dining room", description = Some("It's festively decorated with shrubbery from the garden and signs that Saint Eat A Lot soon will be there"), ascii = Ascii.diningRoom, items = List(
     Item("table", "A fine table, made of solid wood. Many fun evenings have been had round here. This one too!", hiddenItems = List(
       Item("instructions", "Something useful", pickable = true, preposition = "some",
         action = useInstructions)
@@ -51,7 +51,7 @@ object DevonWorld {
   val fridge = Item("fridge", "If you need scissors, they're here", hiddenItems = List(
     milk
   ))
-  val kitchen = Room("kitchen", ascii = Ascii.kitchen, items = List(
+  val kitchen = Room("kitchen", description = Some("Tea, coffee, food... you name it, tasty stuff is made here"), ascii = Ascii.kitchen, items = List(
     Item("kettle", "I wouldn't mind a cup of tea", pickable = true, action = useKettle, requires = List(
       teaBags, milk, sugar
     )),
@@ -62,16 +62,16 @@ object DevonWorld {
     Item("recycling basket", "There's just some junk mail in here. One of them is advertising a dial-a-joke service on number 888. Guess if I had a phone I could try that"),
     Item("phil", "He's doing the washing up, don't disturb his flow!", preposition = "", sound = Some("washingup.wav"))
   ))
-  val hallway = Room("hallway", ascii = Ascii.hallway, items = List(
+  val hallway = Room("hallway", description = Some("I go through here to get to other places. Or, to do my laundry"), ascii = Ascii.hallway, items = List(
     Item("aiko", "Meow Meow!", preposition = "", sound = Some("meow.wav")),
     Item("freezer", "A big chest freezer, full of Christmas yummies! Hey, there's something on top of it!", preposition = "the", hiddenItems = List(
-      Item("jackson", "Purr Purr...!", preposition = "", sound = Some("meow.wav")),
+      Item("jackson", "Purr Purr...!", preposition = "", sound = Some("purr.wav")),
     )),
     Item("drinks cupboard", "It's dark in here", preposition = "the", hiddenItems = List(
       Item("light", "You turn on the light, but all you find is drinks.", preposition = "the", sound = Some("lightswitch.wav")),
     )),
   ))
-  val study = Room("study", ascii = Ascii.study, items = List(
+  val study = Room("study", description = Some("Sometimes a bedroom, sometimes a study. All the time useful."), ascii = Ascii.study, items = List(
     Item("bookcase", "There's some books on here that I love", hiddenItems = List(
       Item("strange book", "hold on a minute, there's a book here that is surely not mine! Who put it here!?... and why", pickable = true, realWorld = true)
     )),
@@ -81,12 +81,12 @@ object DevonWorld {
       Item("paper", "always useful", preposition = "some")
     )),
   ))
-  val toilet = Room("toilet", ascii = Ascii.toilet, items = List(
+  val toilet = Room("toilet", description = Some("A frequently used room"), ascii = Ascii.toilet, items = List(
     Item("sink", "You wash your hands. Squeaky clean!"),
     Item("shower", "It's a shower. What more can you say"),
     Item("toilet", "You don't need the toilet right now")
   ))
-  val livingRoom = Room("living room", ascii = Ascii.livingRoom, items = List(
+  val livingRoom = Room("living room", description = Some("Stockings were hung by the chimney with care, in hopes that chocolates soon would be in there"), ascii = Ascii.livingRoom, items = List(
     Item("sofa", "Looks comfy, near the fire and well placed for watching TV. Makes me want to sit down!", hiddenItems = List(
       Item("key", "There's a small key that's fallen down the side between the cushions, I wonder what it is for?", pickable = true, realWorld = true,
         action = putLineSlowly("It clearly opens something... but what?"))
