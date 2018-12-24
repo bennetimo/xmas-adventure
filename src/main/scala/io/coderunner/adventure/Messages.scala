@@ -37,7 +37,7 @@ object Messages {
       |so you should know how to use it.
       |<br/><br/>
       |So let's see... you're sitting at your dining room table. In front of you is your mysterious present that has been locked. By
-      |solving a few puzzles you will be able to unlock the box, and retrieve what's inside! (But only if you have been good of course!
+      |solving a few puzzles you will be able to unlock the box, and retrieve what's inside! (But only if you have been good of course!)
       |<br/><br/>
       |Are you ready to start the challenge?
     """.stripMargin
@@ -50,5 +50,6 @@ object Messages {
       |<br/><br/>
       |Thank you for using Santa's Workshop... we look forward to seeing you again next year!
     """.stripMargin
+
 
 }
