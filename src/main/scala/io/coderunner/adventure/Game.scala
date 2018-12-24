@@ -112,9 +112,9 @@ object Game {
         _ <- putLineSlowly("Well done, you found a key! Now... what do you suppose it is for, hmm?")
       } yield ()
       case FindMoneyKey => realItemFound.flatMap(_ => putLineSlowly("A key! Just need a lock to open now..."))
-      case FindPlayingCards => realItemFound.flatMap(_ => putLineSlowly("I don't really fancy a game right now... maybe the elves left this here to send me a clue?"))
+      case FindPlayingCards => realItemFound.flatMap(_ => putLineSlowly("I don't really fancy a game right now... maybe the elves left this here to send me a clue? It's just a standard pack of cards...isn't it?"))
       case FindBook => realItemFound.flatMap(_ => putLineSlowly("Well now, how did that get here? Must be important if it's hidden away like this"))
-      case FindSecondBox => realItemFound.flatMap(_ => putLineSlowly("You're well on your way to proving yourself this year. You seem to have figured out what to do by now... let's see if you can find out how to open this next box..."))
+      case FindSecondBox => realItemFound.flatMap(_ => putLineSlowly("You're well on your way to proving yourself this year. You seem to have figured out what to do by now... let's see if you can find out how to open this next box by finding three hidden numbers"))
       case FindThirdBox => realItemFound.flatMap(_ => putLineSlowly("Just when you were thinking the elves had finally finished challenging you. No lock you thought! But what do we have here?? A mysterious small box and... oh! You have unlocked your hat, where it with pride! "))
       case FindMoneyBox => realItemFound.flatMap(_ => putLineSlowly("Ca Ching...! I'm rich! Oh... well I won't go hungry. Hmm hold on, there's something else in here too. Wonder what the coloured squares mean? And that title is... odd"))
       case FindPorkScratchings => realItemFound.flatMap(_ => putLineSlowly("A tasty treat! Be sure to share!"))
@@ -160,25 +160,25 @@ object Game {
 
   def preLoop: Game[Unit] = for {
     _ <- putLine(Ascii.logo, "pre")
-//    _ <- putLineSlowly(Messages.introOne)
-//    name <- getName
-//    _ <- putLineSlowly("Finding an elf...")
-//    _ <- loadingBar
-//    _ <- putLineSlowly(Messages.introTwo, newLine = false)
-//    _ <- loadingBar
-//    _ <- putLineSlowly(Messages.introThree)
-//    _ <- putLineSlowly("Did you get that?")
-//    input <- getLine
-//    _ <- handleInputResponse(input)
-//    _ <- clearInput
-//    _ <- putLineSlowly(Messages.introFour)
-//    input <- getLine
-//    _ <- handleInputResponse(input)
-//    _ <- clearInput
-//    _ <- putLineSlowly("Initialising magic world...")
-//    _ <- loadingBar
-//    _ <- putLineSlowly("Bridging physical world...")
-//    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introOne)
+    name <- getName
+    _ <- putLineSlowly("Finding an elf...")
+    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introTwo, newLine = false)
+    _ <- loadingBar
+    _ <- putLineSlowly(Messages.introThree)
+    _ <- putLineSlowly("Did you get that?")
+    input <- getLine
+    _ <- handleInputResponse(input)
+    _ <- clearInput
+    _ <- putLineSlowly(Messages.introFour)
+    input <- getLine
+    _ <- handleInputResponse(input)
+    _ <- clearInput
+    _ <- putLineSlowly("Initialising magic world...")
+    _ <- loadingBar
+    _ <- putLineSlowly("Bridging physical world...")
+    _ <- loadingBar
     _ <- putLineSlowly("Good luck! We hope that you have been nice :)")
     _ <- pause()
     _ <- clearInput

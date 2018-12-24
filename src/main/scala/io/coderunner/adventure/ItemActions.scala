@@ -2,7 +2,6 @@ package io.coderunner.adventure
 
 import io.coderunner.adventure.Console.{clearInput, getLine, putLineSlowly}
 import io.coderunner.adventure.Game.{Game}
-import io.coderunner.adventure.World.playerInventoryL
 
 import scala.util.Random
 import World._
@@ -20,7 +19,7 @@ object ItemActions {
       _ <- if(password == "festive") {
         for {
           _ <- playSound("windows7.mp3")
-          _ <- putLineSlowly("The password was correct, and the screen is now displaying a word document")
+          _ <- putLineSlowly("The password was correct, and the screen is now displaying a Word document")
           _ <- putLineSlowly("All that is written is: ")
           _ <- putLineSlowly("50.801033, -3.985236")
           _ <- putLineSlowly("What could it mean?")
@@ -68,12 +67,18 @@ object ItemActions {
       number <- getLine
       _ <- if(number == "888") {
         for {
+          _ <- clearInput
           _ <- playSound("phone.wav")
           _ <- putLineSlowly("It's ringing...")
           _ <- putLineSlowly("Brp Brp... Brp Brp...")
           _ <- putLineSlowly("Hello! Welcome to the CRACK A JOKE service! Dial a digit now for a joke")
-          rnd = new Random(System.currentTimeMillis()).nextInt(jokes.length - 1)
-          _ <- putLineSlowly(jokes(rnd))
+          _ <- getLine
+          ind <- get(playerJokeIndexL)
+          _ <- clearInput
+          _ <- update(playerJokeIndexL)(n => n + 1)
+          jk = ind % (jokes.length)
+          _ <- putLineSlowly(jokes(jk))
+          _ <- playSound("joke.wav")
           _ <- putLineSlowly("Call back again and you might get a different joke!")
         } yield ()
       } else for {
@@ -91,6 +96,17 @@ object ItemActions {
       unlocked <- get(secretItemsL)
       current = unlocked.get(fridge)
       _ <- update(secretItemsL)(m => m.updated(fridge, playingCards :: current.getOrElse(Nil)))
+    } yield ()
+  }
+
+  def useLightswitch: Game[Unit] = {
+    for {
+      _  <- playSound("lightswitch.wav")
+      _  <- putLineSlowly("That's better, now I can see what I want! What do I want...? So much choice")
+      _  <- putLineSlowly("But hold on a second... there's something else in here. It looks out of place amongst the beer")
+      unlocked <- get(secretItemsL)
+      current = unlocked.get(drinksCupboard)
+      _ <- update(secretItemsL)(m => m.updated(drinksCupboard, goldbear :: current.getOrElse(Nil)))
     } yield ()
   }
 
