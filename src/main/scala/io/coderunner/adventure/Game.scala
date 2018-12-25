@@ -115,10 +115,11 @@ object Game {
       case FindPlayingCards => realItemFound.flatMap(_ => putLineSlowly("I don't really fancy a game right now... maybe the elves left this here to send me a clue? It's just a standard pack of cards...isn't it?"))
       case FindBook => realItemFound.flatMap(_ => putLineSlowly("Well now, how did that get here? Must be important if it's hidden away like this"))
       case FindSecondBox => realItemFound.flatMap(_ => putLineSlowly("You're well on your way to proving yourself this year. You seem to have figured out what to do by now... let's see if you can find out how to open this next box by finding three hidden numbers"))
-      case FindThirdBox => realItemFound.flatMap(_ => putLineSlowly("Just when you were thinking the elves had finally finished challenging you. No lock you thought! But what do we have here?? A mysterious small box and... oh! You have unlocked your hat, where it with pride! "))
+      case FindThirdBox => realItemFound.flatMap(_ => putLineSlowly("Just when you were thinking the elves had finally finished challenging you. No lock you thought! But what do we have here?? A mysterious small box and... oh! You have unlocked your hat, where it with pride! Don't forget to add the arms at his hat (you did find that, didn't you?)"))
       case FindMoneyBox => realItemFound.flatMap(_ => putLineSlowly("Ca Ching...! I'm rich! Oh... well I won't go hungry. Hmm hold on, there's something else in here too. Wonder what the coloured squares mean? And that title is... odd"))
       case FindPorkScratchings => realItemFound.flatMap(_ => putLineSlowly("A tasty treat! Be sure to share!"))
       case FindGoldBear => realItemFound.flatMap(_ => putLineSlowly("Nice, you found the golden bear! Our workshop decided you needed a treat to keep going!"))
+      case FindSantaHat => realItemFound.flatMap(_ => putLineSlowly("It's a hat! Don't worry, it's not for your head. Tim is not that lazy..."))
 
       case _ => putLineSlowly("I'm sorry, I don't understand that right now")
     }
@@ -130,8 +131,8 @@ object Game {
       _ <- playSound("collect.wav")
       _ <- update(playerRealItemsFoundL)(count => count + 1)
       count <- get(playerRealItemsFoundL)
-      _ <- putLineSlowly(s"Nicely done $name, you've found $count/9 items we've placed into your physical word!")
-      _ <- if(count >= 9) putLineSlowly("ALL items found! Well done!") else nothing
+      _ <- putLineSlowly(s"Nicely done $name, you've found $count/10 items we've placed into your physical word!")
+      _ <- if(count >= 10) putLineSlowly("ALL items found! Well done!") else nothing
     } yield ()
   }
 

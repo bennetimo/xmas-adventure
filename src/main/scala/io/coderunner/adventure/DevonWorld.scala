@@ -73,6 +73,7 @@ object DevonWorld {
     Item("aiko", "Meow Meow!", preposition = "", sound = Some("meow.wav")),
     Item("freezer", "A big chest freezer, full of Christmas yummies! Hey, there's something on top of it!", preposition = "the", hiddenItems = List(
       Item("jackson", "Purr Purr...!", preposition = "", sound = Some("purr.wav")),
+      Item("santa hat", "Very festive", action = putLineSlowly("You need to use me in the physical world..."), realWorld = true, pickable = true),
     )),
     drinksCupboard,
     Item("abi", "Pouring a pint. How many is that now?!", preposition = ""),

@@ -30,6 +30,7 @@ object Action {
     lazy val moneybox: Parser[Action] = "chocolategold" ^^^ FindMoneyBox
     lazy val porkscratchings: Parser[Action] = "omnomnom" ^^^ FindPorkScratchings
     lazy val goldbear: Parser[Action] = "goldenyummy" ^^^ FindGoldBear
+    lazy val santahat: Parser[Action] = "hohoho" ^^^ FindSantaHat
 
     lazy val win: Parser[Action] = "christmascrackered" ^^^ Win
 
@@ -37,7 +38,7 @@ object Action {
     lazy val stop: Parser[Action] = "stop" ^^^ Stop
 
     def grammar: Parser[Action] =
-      firstKey | moneyKey | playingCards | book | findSecondBox | findThirdBox | moneybox | porkscratchings | goldbear |
+      firstKey | moneyKey | playingCards | book | findSecondBox | findThirdBox | moneybox | porkscratchings | goldbear | santahat |
         goto | pickUp | inspect | inventory | use | look | win | twinkle | stop
 
   }
@@ -63,6 +64,7 @@ object Action {
   case object FindMoneyBox extends Action
   case object FindPorkScratchings extends Action
   case object FindGoldBear extends Action
+  case object FindSantaHat extends Action
 
   case object Inventory extends Action
   case object Win extends Action
