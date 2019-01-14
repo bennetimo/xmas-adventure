@@ -15,7 +15,7 @@ object Action {
     lazy val goto: Parser[Action] = ("go" | "move") ~ ("to"?) ~ ("the"?) ~ word ^^ { case _ ~ room => Goto(room) }
 
     lazy val pickUp: Parser[Action] = ("pick" | "take" | "grab") ~ ("up"?) ~ word ^^ { case _ ~ item => PickUp(item) }
-    lazy val inspect: Parser[Action] = ("inspect" | "examine" | "look in" | "look at" | "look on" | "look inside" | "open") ~ ("the"?) ~ word ^^ { case _ ~ item => Inspect(item) }
+    lazy val inspect: Parser[Action] = ("inspect" | "examine" | "look in" | "look at" | "look on" | "look inside" | "open" | "speak" ) ~ ("the"?) ~ word ^^ { case _ ~ item => Inspect(item) }
     lazy val look: Parser[Action] = "look" ^^^ Look
     lazy val inventory: Parser[Action] = ("inventory" | "items" | "backpack") ^^^ Inventory
     lazy val use: Parser[Action] = ("use" | "view") ~ ("the"?) ~ word ^^ { case _ ~ item => Use(item) }
